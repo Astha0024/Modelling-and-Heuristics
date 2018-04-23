@@ -1,0 +1,68 @@
+---
+title: "1-simulations"
+author: "Astha"
+date: "April 4, 2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+#Inverse Trransforms 
+set.seed(124345)
+NSim <- 10^4
+U <- runif(NSim)
+X <- sqrt(-log(U))
+Y <- rweibull(10000, shape = 2, scale = 1)
+par(mfrow = c(1,2))
+plot(density(X), xlim =c(0,3), ylim = c(0,1), main = "", xlab=NA, col = "blue")
+par(new = TRUE)
+plot(density(Y), xlim =c(0,3), ylim = c(0,1), main = "", xlab=NA, col = "red")
+#par(new = TRUE)
+```
+
+```{r}
+#Accept Reject Method
+set.seed(123456)
+NSim1 <- 10^4
+f <- function(y) {
+  r <- 3/10 * ((-(y)^2) + 2*y + 1)
+  return(r)
+} 
+y <- runif(NSim1, max = 2, min = 0)
+x <- runif(NSim1, max = 1, min = 0)
+v <- y[x<f(y)]
+hist(v, breaks = 100)
+```
+
+```{r}
+#Monte Carlo Simulation for Heteroskedasticity
+set.seed(12345)
+b0 <- 0.2
+b1 <- 0.5
+reps <- 500
+n <- 1000
+sigma.est<-numeric(reps)
+par.est <- matrix(NA, nrow = reps, ncol = 2)
+X2 <- runif(n,-1,1)
+gamma<-5
+for(i in 1:reps) {
+  Y2<- b0 + b1*X2 + rnorm(n,0, ((exp(X2*gamma))/50) )
+  model <- lm(Y2 ~ X2)
+  sigma.est[i]=summary(model)$sigma
+  par.est[i,1]<-model$coef[1]
+  par.est[i,2]<-model$coef[2]
+}
+mean(sigma.est)
+
+plot(density(par.est[,1]), lty=2, xlab=NA, main="", xlim = c(0,1), ylim=c(0,20), col="red")
+par(new=TRUE)
+plot(density(par.est[,2]), lty=2, xlab=NA, main="", xlim = c(0,1), ylim=c(0,20), col="blue")
+```
+
